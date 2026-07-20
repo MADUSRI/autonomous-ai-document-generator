@@ -16,7 +16,26 @@ This project implements a simple FastAPI service that accepts a natural language
    - `uvicorn app.main:app --reload`
 3. Send a test request:
    - `curl -X POST http://127.0.0.1:8000/agent -H "Content-Type: application/json" -d '{"request":"Create a concise project proposal for a new AI scheduling assistant for small clinics."}'`
+     
+## Installation
 
+```bash
+git clone https://github.com/yourusername/autonomous-ai-document-generator.git
+cd autonomous-ai-document-generator
+
+python -m venv .venv
+pip install -r requirements.txt
+
+ollama pull llama3.2
+
+uvicorn app.main:app --reload
+```
+
+Open:
+
+```
+http://127.0.0.1:8000
+```
 ## Engineering improvement implemented
 - Multi-step planning: the agent breaks the request into a structured execution plan before generating the document. This improves autonomy and makes the workflow more robust for ambiguous or complex requests.
 
