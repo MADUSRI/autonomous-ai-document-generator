@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autonomous Agent UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; background: #f7f8fb; color: #222; }
+    .card { max-width: 760px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    textarea { width: 100%; min-height: 120px; padding: 0.8rem; font-size: 1rem; border-radius: 8px; border: 1px solid #cbd5e1; }
+    button { margin-top: 1rem; padding: 0.7rem 1.2rem; border: none; border-radius: 8px; background: #2563eb; color: white; cursor: pointer; }
+    .result { margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-left: 4px solid #38bdf8; border-radius: 6px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Autonomous AI Agent</h1>
+    <p>Describe a business or technical document request and the agent will create a plan, make assumptions if needed, and produce a Word document.</p>
+    <textarea id="request" placeholder="Example: Draft a technical design for an AI-powered support platform, but the team size and budget are unclear. Make reasonable assumptions and explain them."></textarea>
+    <button onclick="submitRequest()">Generate Document</button>
+    <div id="result" class="result" style="display:none"></div>
+  </div>
+
+  <script>
+    async function submitRequest() {
+      const request = document.getElementById('request').value.trim();
+      const result = document.getElementById('result');
+      if (!request) {
+        result.style.display = 'block';
+        result.innerHTML = '<strong>Please enter a request.</strong>';
+        return;
+      }
+      result.style.display = 'block';
+      result.innerHTML = '<p>Generating document...</p>';
+      try {
+        const response = await fetch('/agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ request })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Request failed');
+        result.innerHTML = `
+          <strong>${data.message}</strong>
+          <p><strong>Summary:</strong> ${data.summary}</p>
+          <p><strong>Plan:</strong></p>
+          <ul>${data.plan.map(item => `<li>${item}</li>`).join('')}</ul>
+          <p><strong>Assumptions:</strong></p>
+          <ul>${data.assumptions.map(item => `<li>${item}</li>`).join('')}</ul>
+          <p><a href="/download/${data.document_name}" target="_blank">Download Word Document</a></p>
+        `;
+      } catch (err) {
+        result.innerHTML = `<strong>Error:</strong> ${err.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
